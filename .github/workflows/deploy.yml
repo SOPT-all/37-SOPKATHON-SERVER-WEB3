@@ -78,6 +78,17 @@ jobs:
 
             # 새 버전 실행
             nohup java -jar build/libs/web3-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod > app.log 2>&1 &
-            sleep 5
-            echo "✅ Application started!"
+
+            # 헬스체크 (최대 30초 대기)
+            echo "🔍 Health check..."
+            for i in 1 2 3 4 5 6; do
+              sleep 5
+              if curl -s http://localhost:8080/actuator/health | grep -q '"status":"UP"'; then
+                echo "✅ Application is healthy!"
+                exit 0
+              fi
+              echo "⏳ Waiting... ($i/6)"
+            done
+            echo "❌ Health check failed!"
+            exit 1
           ENDSSH
