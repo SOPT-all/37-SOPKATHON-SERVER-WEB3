@@ -7,21 +7,18 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import sopt.server.web3.global.entity.BaseTimeEntity;
-import sopt.server.web3.domain.user.entity.User;
 
 @Entity
 @Getter
 @Table(name = "sagas")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Saga extends BaseTimeEntity {
+public class Saga {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
