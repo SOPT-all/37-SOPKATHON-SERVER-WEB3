@@ -13,6 +13,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import sopt.server.web3.domain.diary.entity.LeafType;
 
 @Entity
 @Getter
@@ -56,5 +57,16 @@ public class UserSagaCount {
 
     public void incrementLoveCount() {
         this.loveCount++;
+    }
+
+    /**
+     * LeafType에 따라 해당하는 카운트를 증가시킵니다.
+     */
+    public void incrementCount(LeafType leafType) {
+        switch (leafType) {
+            case FAITH -> incrementFaithCount();
+            case LOVE -> incrementLoveCount();
+            case HOPE -> incrementHopeCount();
+        }
     }
 }

@@ -71,11 +71,27 @@ public class DiaryService {
             LeafType leafType,
             String sagaContent) {
 
-        // 1. User 조회
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+        User user = findUser(userId);
+        Diary savedDiary = createAndSaveDiary(user, title, content, createdAt, leafType);
+        Saga savedSaga = createAndSaveSaga(savedDiary, sagaContent);
+        updateUserSagaCount(user, leafType);
 
-        // 2. Diary 저장
+        return new SavedDiaryInfo(savedDiary.getDiaryId(), savedSaga.getSagaId());
+    }
+
+    /**
+     * 사용자를 조회합니다.
+     */
+    private User findUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    /**
+     * 일기를 생성하고 저장합니다.
+     */
+    private Diary createAndSaveDiary(User user, String title, String content,
+                                     LocalDateTime createdAt, LeafType leafType) {
         Diary diary = Diary.builder()
                 .user(user)
                 .leafType(leafType)
@@ -83,19 +99,34 @@ public class DiaryService {
                 .title(title)
                 .createdAt(createdAt)
                 .build();
-        Diary savedDiary = diaryRepository.save(diary);
+        return diaryRepository.save(diary);
+    }
 
-        // 3. Saga 저장
+    /**
+     * 설화를 생성하고 저장합니다.
+     */
+    private Saga createAndSaveSaga(Diary diary, String sagaContent) {
         Saga saga = Saga.builder()
-                .diary(savedDiary)
+                .diary(diary)
                 .sagaContent(sagaContent)
                 .build();
-        Saga savedSaga = sagaRepository.save(saga);
+        return sagaRepository.save(saga);
+    }
 
-        // 4. UserSagaCount 업데이트
-        UserSagaCount userSagaCount = userSagaCountRepository.findByUser_UserId(userId)
+    /**
+     * 사용자의 설화 카운트를 업데이트합니다.
+     */
+    private void updateUserSagaCount(User user, LeafType leafType) {
+        UserSagaCount userSagaCount = getOrCreateUserSagaCount(user);
+        userSagaCount.incrementCount(leafType);
+    }
+
+    /**
+     * UserSagaCount를 조회하거나 없으면 새로 생성합니다.
+     */
+    private UserSagaCount getOrCreateUserSagaCount(User user) {
+        return userSagaCountRepository.findByUser_UserId(user.getUserId())
                 .orElseGet(() -> {
-                    // UserSagaCount가 없으면 새로 생성
                     UserSagaCount newCount = UserSagaCount.builder()
                             .user(user)
                             .faithCount(0)
@@ -104,15 +135,6 @@ public class DiaryService {
                             .build();
                     return userSagaCountRepository.save(newCount);
                 });
-
-        // LeafType에 따라 해당 카운트 증가
-        switch (leafType) {
-            case FAITH -> userSagaCount.incrementFaithCount();
-            case LOVE -> userSagaCount.incrementLoveCount();
-            case HOPE -> userSagaCount.incrementHopeCount();
-        }
-
-        return new SavedDiaryInfo(savedDiary.getDiaryId(), savedSaga.getSagaId());
     }
 
 }
