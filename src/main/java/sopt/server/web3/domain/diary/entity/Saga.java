@@ -32,17 +32,12 @@ public class Saga extends BaseTimeEntity {
     @JoinColumn(name = "diary_id", nullable = false)
     private Diary diary;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-
     @Column(name = "saga_content", nullable = false, columnDefinition = "TEXT")
     private String sagaContent;
 
     @Builder
-    private Saga(Diary diary, User user, String sagaContent) {
+    private Saga(Diary diary, String sagaContent) {
         this.diary = diary;
-        this.user = user;
         this.sagaContent = sagaContent;
     }
 }
