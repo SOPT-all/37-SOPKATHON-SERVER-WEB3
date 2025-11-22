@@ -69,6 +69,39 @@ public class DiaryService {
         return DiaryPageResponseDto.of(diaryDtos, nextCursor, hasNext);
     }
 
+    /**
+     * 테마별 커서 기반 페이징으로 다이어리 목록을 조회합니다.
+     *
+     * @param leafType 필터링할 테마 (FAITH, HOPE, LOVE)
+     * @param cursor 마지막으로 조회한 diaryId (null이면 첫 페이지)
+     * @param size 조회할 개수 (기본 10개)
+     * @return 다이어리 목록과 다음 커서 정보
+     */
+    public DiaryPageResponseDto findDiariesByLeafTypeWithCursor(LeafType leafType, Long cursor, int size) {
+        // size + 1개를 조회하여 hasNext 판단
+        Pageable pageable = PageRequest.of(0, size + 1);
+
+        List<Diary> diaries = cursor == null
+                ? diaryRepository.findByLeafTypeWithCursor(leafType, pageable)
+                : diaryRepository.findByLeafTypeWithCursor(leafType, cursor, pageable);
+
+        // hasNext 판단 및 실제 반환할 데이터 분리
+        boolean hasNext = diaries.size() > size;
+        List<Diary> content = hasNext ? diaries.subList(0, size) : diaries;
+
+        // DTO 변환
+        List<DiaryResponseDto> diaryDtos = content.stream()
+                .map(DiaryResponseDto::from)
+                .collect(Collectors.toList());
+
+        // 다음 커서 설정 (마지막 항목의 diaryId)
+        Long nextCursor = hasNext && !content.isEmpty()
+                ? content.get(content.size() - 1).getDiaryId()
+                : null;
+
+        return DiaryPageResponseDto.of(diaryDtos, nextCursor, hasNext);
+    }
+
     public DiaryDetailResponseDto getDiary(Long diaryId) {
         Diary diary = diaryRepository.findById(diaryId)
             .orElseThrow(() -> new BaseException(ErrorCode.DIARY_NOT_FOUND));
