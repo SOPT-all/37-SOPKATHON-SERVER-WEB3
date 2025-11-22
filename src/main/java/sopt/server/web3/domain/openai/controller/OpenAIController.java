@@ -26,7 +26,7 @@ public class OpenAIController {
 	@PostMapping("/diary")
 	public CommonApiResponse<DiaryToStoryResponseDto> convertDiaryToStory(@RequestBody DiaryToStoryRequestDto request) {
 
-		DiaryToStoryResponseDto response = diaryToStoryService.convertDiaryToStory(request.getTheme(), request.getDiaryContent());
+		DiaryToStoryResponseDto response = diaryToStoryService.convertDiaryToStory(request.getTheme(), request.getContent());
 
 		return CommonApiResponse.success(SuccessCode.OPENAI_DIARY_TO_STORY_SUCCESS, response);
 	}
