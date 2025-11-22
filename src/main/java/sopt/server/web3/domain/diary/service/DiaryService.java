@@ -4,11 +4,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import sopt.server.web3.domain.diary.dto.DiaryDetailResponseDto;
+import sopt.server.web3.domain.diary.dto.DiaryPageResponseDto;
 import sopt.server.web3.domain.diary.dto.DiaryResponseDto;
 import sopt.server.web3.domain.diary.entity.Diary;
 import sopt.server.web3.domain.diary.entity.LeafType;
@@ -33,11 +36,37 @@ public class DiaryService {
     private final UserRepository userRepository;
     private final UserSagaCountRepository userSagaCountRepository;
 
-    public List<DiaryResponseDto> findAllDiaries() {
-        return diaryRepository.findAllByOrderByCreatedAtDesc()
-                .stream()
+
+    /**
+     * 커서 기반 페이징으로 다이어리 목록을 조회합니다.
+     *
+     * @param cursor 마지막으로 조회한 diaryId (null이면 첫 페이지)
+     * @param size 조회할 개수 (기본 10개)
+     * @return 다이어리 목록과 다음 커서 정보
+     */
+    public DiaryPageResponseDto findDiariesWithCursor(Long cursor, int size) {
+        // size + 1개를 조회하여 hasNext 판단
+        Pageable pageable = PageRequest.of(0, size + 1);
+
+        List<Diary> diaries = cursor == null
+                ? diaryRepository.findAllWithCursor(pageable)
+                : diaryRepository.findAllWithCursor(cursor, pageable);
+
+        // hasNext 판단 및 실제 반환할 데이터 분리
+        boolean hasNext = diaries.size() > size;
+        List<Diary> content = hasNext ? diaries.subList(0, size) : diaries;
+
+        // DTO 변환
+        List<DiaryResponseDto> diaryDtos = content.stream()
                 .map(DiaryResponseDto::from)
                 .collect(Collectors.toList());
+
+        // 다음 커서 설정 (마지막 항목의 diaryId)
+        Long nextCursor = hasNext && !content.isEmpty()
+                ? content.get(content.size() - 1).getDiaryId()
+                : null;
+
+        return DiaryPageResponseDto.of(diaryDtos, nextCursor, hasNext);
     }
 
     public DiaryDetailResponseDto getDiary(Long diaryId) {
