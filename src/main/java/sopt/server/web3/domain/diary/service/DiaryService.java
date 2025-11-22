@@ -1,5 +1,6 @@
 package sopt.server.web3.domain.diary.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,16 +13,11 @@ import sopt.server.web3.domain.diary.dto.DiaryResponseDto;
 import sopt.server.web3.domain.diary.entity.Diary;
 import sopt.server.web3.domain.diary.entity.LeafType;
 import sopt.server.web3.domain.diary.entity.Saga;
-import sopt.server.web3.domain.diary.entity.Diary;
-import sopt.server.web3.domain.diary.entity.Saga;
 import sopt.server.web3.domain.diary.repository.DiaryRepository;
 import sopt.server.web3.domain.diary.repository.SagaRepository;
 import sopt.server.web3.domain.diary.vo.SavedDiaryInfo;
 import sopt.server.web3.domain.user.entity.User;
 import sopt.server.web3.domain.user.repository.UserRepository;
-import sopt.server.web3.global.exception.BaseException;
-import sopt.server.web3.global.response.error.ErrorCode;
-import sopt.server.web3.domain.diary.repository.SagaRepository;
 import sopt.server.web3.global.exception.BaseException;
 import sopt.server.web3.global.response.error.ErrorCode;
 
@@ -89,7 +85,6 @@ public class DiaryService {
         // 3. Saga 저장
         Saga saga = Saga.builder()
                 .diary(savedDiary)
-                .user(user)
                 .sagaContent(sagaContent)
                 .build();
         Saga savedSaga = sagaRepository.save(saga);
