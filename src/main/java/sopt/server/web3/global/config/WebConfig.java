@@ -9,8 +9,8 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("*")
-                .allowedOriginPatterns("*")  // 모든 origin 허용 (배포 시 특정 도메인으로 변경 권장)
+        registry.addMapping("/**")  // 모든 경로 (/** = 모든 하위 경로 포함)
+                .allowedOriginPatterns("*")  // 모든 origin 허용
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true)
