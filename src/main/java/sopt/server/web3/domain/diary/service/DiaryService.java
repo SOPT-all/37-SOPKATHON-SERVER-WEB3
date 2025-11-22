@@ -52,24 +52,10 @@ public class DiaryService {
                 ? diaryRepository.findAllWithCursor(pageable)
                 : diaryRepository.findAllWithCursor(cursor, pageable);
 
-        // hasNext 판단 및 실제 반환할 데이터 분리
-        boolean hasNext = diaries.size() > size;
-        List<Diary> content = hasNext ? diaries.subList(0, size) : diaries;
-
-        // DTO 변환
-        List<DiaryResponseDto> diaryDtos = content.stream()
-                .map(DiaryResponseDto::from)
-                .collect(Collectors.toList());
-
-        // 다음 커서 설정 (마지막 항목의 diaryId)
-        Long nextCursor = hasNext && !content.isEmpty()
-                ? content.get(content.size() - 1).getDiaryId()
-                : null;
-
         // 전체 다이어리 개수 조회
         long totalCount = diaryRepository.countAllDiaries();
 
-        return DiaryPageResponseDto.of(diaryDtos, nextCursor, hasNext, totalCount);
+        return buildDiaryPageResponse(diaries, size, totalCount);
     }
 
     /**
@@ -88,24 +74,10 @@ public class DiaryService {
                 ? diaryRepository.findByLeafTypeWithCursor(leafType, pageable)
                 : diaryRepository.findByLeafTypeWithCursor(leafType, cursor, pageable);
 
-        // hasNext 판단 및 실제 반환할 데이터 분리
-        boolean hasNext = diaries.size() > size;
-        List<Diary> content = hasNext ? diaries.subList(0, size) : diaries;
-
-        // DTO 변환
-        List<DiaryResponseDto> diaryDtos = content.stream()
-                .map(DiaryResponseDto::from)
-                .collect(Collectors.toList());
-
-        // 다음 커서 설정 (마지막 항목의 diaryId)
-        Long nextCursor = hasNext && !content.isEmpty()
-                ? content.get(content.size() - 1).getDiaryId()
-                : null;
-
         // 테마별 다이어리 개수 조회
         long totalCount = diaryRepository.countByLeafType(leafType);
 
-        return DiaryPageResponseDto.of(diaryDtos, nextCursor, hasNext, totalCount);
+        return buildDiaryPageResponse(diaries, size, totalCount);
     }
 
     public DiaryDetailResponseDto getDiary(Long diaryId) {
@@ -207,6 +179,32 @@ public class DiaryService {
         }
 
         return userSagaCount;
+    }
+
+    /**
+     * 다이어리 목록을 페이징 응답 DTO로 변환합니다.
+     *
+     * @param diaries 조회된 다이어리 목록 (size + 1개)
+     * @param size 실제 반환할 개수
+     * @param totalCount 전체 다이어리 개수
+     * @return 페이징 응답 DTO
+     */
+    private DiaryPageResponseDto buildDiaryPageResponse(List<Diary> diaries, int size, long totalCount) {
+        // hasNext 판단 및 실제 반환할 데이터 분리
+        boolean hasNext = diaries.size() > size;
+        List<Diary> content = hasNext ? diaries.subList(0, size) : diaries;
+
+        // DTO 변환
+        List<DiaryResponseDto> diaryDtos = content.stream()
+                .map(DiaryResponseDto::from)
+                .collect(Collectors.toList());
+
+        // 다음 커서 설정 (마지막 항목의 diaryId)
+        Long nextCursor = hasNext && !content.isEmpty()
+                ? content.get(content.size() - 1).getDiaryId()
+                : null;
+
+        return DiaryPageResponseDto.of(diaryDtos, nextCursor, hasNext, totalCount);
     }
 
 }
