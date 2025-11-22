@@ -80,10 +80,10 @@ public class DiaryService {
     }
 
     /**
-     * 사용자를 조회합니다.
+     * 사용자와 UserSagaCount를 함께 조회합니다. (쿼리 최적화)
      */
     private User findUser(Long userId) {
-        return userRepository.findById(userId)
+        return userRepository.findByIdWithSagaCount(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
     }
 
@@ -123,18 +123,22 @@ public class DiaryService {
 
     /**
      * UserSagaCount를 조회하거나 없으면 새로 생성합니다.
+     * User를 fetch join으로 조회했으므로 추가 쿼리 없이 가져옵니다.
      */
     private UserSagaCount getOrCreateUserSagaCount(User user) {
-        return userSagaCountRepository.findByUser_UserId(user.getUserId())
-                .orElseGet(() -> {
-                    UserSagaCount newCount = UserSagaCount.builder()
-                            .user(user)
-                            .faithCount(0)
-                            .hopeCount(0)
-                            .loveCount(0)
-                            .build();
-                    return userSagaCountRepository.save(newCount);
-                });
+        UserSagaCount userSagaCount = user.getUserSagaCount();
+
+        if (userSagaCount == null) {
+            userSagaCount = UserSagaCount.builder()
+                    .user(user)
+                    .faithCount(0)
+                    .hopeCount(0)
+                    .loveCount(0)
+                    .build();
+            return userSagaCountRepository.save(userSagaCount);
+        }
+
+        return userSagaCount;
     }
 
 }
