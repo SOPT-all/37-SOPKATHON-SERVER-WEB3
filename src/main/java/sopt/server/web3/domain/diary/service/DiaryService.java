@@ -17,7 +17,9 @@ import sopt.server.web3.domain.diary.repository.DiaryRepository;
 import sopt.server.web3.domain.diary.repository.SagaRepository;
 import sopt.server.web3.domain.diary.vo.SavedDiaryInfo;
 import sopt.server.web3.domain.user.entity.User;
+import sopt.server.web3.domain.user.entity.UserSagaCount;
 import sopt.server.web3.domain.user.repository.UserRepository;
+import sopt.server.web3.domain.user.repository.UserSagaCountRepository;
 import sopt.server.web3.global.exception.BaseException;
 import sopt.server.web3.global.response.error.ErrorCode;
 
@@ -29,6 +31,7 @@ public class DiaryService {
     private final DiaryRepository diaryRepository;
     private final SagaRepository sagaRepository;
     private final UserRepository userRepository;
+    private final UserSagaCountRepository userSagaCountRepository;
 
     public List<DiaryResponseDto> findAllDiaries() {
         return diaryRepository.findAllByOrderByCreatedAtDesc()
@@ -88,6 +91,26 @@ public class DiaryService {
                 .sagaContent(sagaContent)
                 .build();
         Saga savedSaga = sagaRepository.save(saga);
+
+        // 4. UserSagaCount 업데이트
+        UserSagaCount userSagaCount = userSagaCountRepository.findByUser_UserId(userId)
+                .orElseGet(() -> {
+                    // UserSagaCount가 없으면 새로 생성
+                    UserSagaCount newCount = UserSagaCount.builder()
+                            .user(user)
+                            .faithCount(0)
+                            .hopeCount(0)
+                            .loveCount(0)
+                            .build();
+                    return userSagaCountRepository.save(newCount);
+                });
+
+        // LeafType에 따라 해당 카운트 증가
+        switch (leafType) {
+            case FAITH -> userSagaCount.incrementFaithCount();
+            case LOVE -> userSagaCount.incrementLoveCount();
+            case HOPE -> userSagaCount.incrementHopeCount();
+        }
 
         return new SavedDiaryInfo(savedDiary.getDiaryId(), savedSaga.getSagaId());
     }
