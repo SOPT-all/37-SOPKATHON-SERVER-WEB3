@@ -1,518 +1,191 @@
-# 솝커톤 웹 3조
+# 🍀 Shamrock Tales
 
-`Java - 17`
+> **"하루의 한 줄이, 아일랜드 설화가 되는 순간"**
 
-## 1. 프로젝트 구조
+부담 없이 남기는 짧은 일상을, AI가 **Seanchaí**(아일랜드 이야기꾼) 스타일의 설화로 변환해
+가족만의 이야기(서사)로 쌓아가는 웹서비스입니다.
 
-```
-src/
-├── main/
-│   ├── java/
-│   │   └── sopt.server.web3/
-│   │       ├── controller/
-│   │       ├── service/
-│   │       ├── repository/
-│   │       ├── dto/
-│   │       ├── entity/
-│   │       ├── global/           # 공통 설정
-│   │       └── Application.java
-│   └── resources/
-└── test/
-```
+---
 
-## 2. 네이밍 컨벤션
+## 📖 서비스 소개
 
-**클래스명**
+아일랜드는 오랜 세월 **말로 기억을 남기던 나라**였습니다.
+마을마다 **Seanchaí**가 사람들의 삶을 받아 기록하고 의미를 붙여줬습니다.
 
-- Controller: `UserController`, `OrderController`
-- Service: `UserService`, `OrderService`
-- Repository: `UserRepository`, `OrderRepository`
-- DTO: `UserRequestDto`, `UserResponseDto`
-- Entity: `User`, `Order` (접미사 없이)
+**Shamrock Tales**는 이 문화적 원형을 현대적으로 재해석해,
+부모가 아이와의 하루를 **"의미 있는 설화"**로 남길 수 있는 서비스로 만들었습니다.
 
-**메서드명**
+### ✨ 핵심 가치
 
-- 조회: `getUser()`, `findUserById()`, `findUserList()`
-- 생성: `createUser()`, `saveUser()`
-- 수정: `updateUser()`, `modifyUser()`
-- 삭제: `deleteUser()`, `removeUser()`
-- 검증: `validateUser()`, `checkUserExists()`
+- ✅ **'기록 중심'**이 아니라 **'해석 중심'**
+- ✅ **단 한 줄**이면 충분한 기록 UX
+- ✅ **아일랜드 구전설화** 세계관 기반 서사화
+- ✅ **FAITH / HOPE / LOVE** 세잎클로버로 감정적 의미 분류
 
-**변수명**
+---
 
-- 카멜케이스 사용: `userId`, `userName`
-- boolean 타입: `isActive`, `hasPermission`
-- Collection: 복수형 사용: `users`
+## 🎯 주요 기능
 
-## 3. 레이어별 책임
+### 🍀 메인 페이지 - 세잎 클로버 UI
 
-**Controller**
+- 세잎 클로버 UI로 지나칠 수 있는 일상을 **일상 속 행복**으로 전환한다는 서비스 메시지 전달
+- 3개 감정 키워드(**용기, 소망, 사랑**)에 해당하는 기록 개수를 직관적으로 표시
 
-- HTTP 요청/응답 처리
-- 입력 검증 (`@Valid`)
-- 비즈니스 로직 포함 금지
+### ✍️ 일상 기록
 
-```java
-@RestController
-@RequestMapping("/users")
-@RequiredArgsConstructor
-public class UserController {
+- 사용자가 자신의 **육아 에피소드**를 간단하게 기록
+- 3개 감정 키워드(**FAITH, HOPE, LOVE**) 선택
+- 감정 키워드 선택을 통해 **하루를 긍정적 관점으로 재해석**하도록 유도
+- **한두 줄만으로도** 충분히 기록을 완성할 수 있어 부담 감소
 
-  private final UserService userService;
+### 📚 설화 변환 (AI)
 
-  // 데이터가 있는 성공 응답
-  @GetMapping("/{id}")
-  public CommonApiResponse<UserResponseDto> getUser(@PathVariable Long id) {
-    UserResponseDto user = userService.getUser(id);
-    return CommonApiResponse.success(SuccessCode.SUCCESS, user);
-  }
+- 사용자의 입력값을 **아일랜드 설화**로 변환
+- 짧은 기록을 아일랜드식 구전설화로 재해석해 **가족만의 이야기**로 보존
+- 설화 기록 후 메인화면 **클로버 UI 애니메이션**으로 피드백 제공
 
-  // 데이터가 없는 성공 응답 (생성, 삭제 등)
-  @PostMapping
-  public CommonApiResponse<Void> createUser(@Valid @RequestBody UserRequestDto request) {
-    userService.createUser(request);
-    return CommonApiResponse.success(SuccessCode.SUCCESS);
-  }
-}
-```
+### 🗂️ 기록 아카이브
 
-**Service**
+- 사용자가 저장한 **기록 원본**과 **변환된 설화**를 아카이빙
+- 3개 감정 키워드(**FAITH, HOPE, LOVE**)에 따라 필터링 가능
+- 커서 기반 페이지네이션으로 무한 스크롤 지원
 
-- 비즈니스 로직 처리
-- 트랜잭션 관리 (`@Transactional`)
-- 여러 Repository 조합
+---
 
-```java
-@Service
-@RequiredArgsConstructor
-@Transactional(readOnly = true)
-public class UserService {
+## 👥 팀 정보
 
-    private final UserRepository userRepository;
+**SOPT 37기 솝커톤 - WEB3 팀**
 
-    @Transactional
-    public UserResponseDto createUser(UserRequestDto request) {
-        // 1. Request DTO → Entity 변환
-        User user = request.toEntity();
-        
-        // 2. Entity 저장
-        User savedUser = userRepository.save(user);
-        
-        // 3. Entity → Response DTO 변환
-        return UserResponseDto.from(savedUser);
-    }
-}
-```
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/Kimgyuilli">
+        <img src="https://github.com/Kimgyuilli.png" width="120px;" alt="김규일"/><br />
+        <sub><b>김규일</b></sub>
+      </a><br />
+      <sub>🎯 Server Lead</sub>
+    </td>
+    <td align="center">
+      <a href="https://github.com/ssyoung02">
+        <img src="https://github.com/ssyoung02.png" width="120px;" alt="조서영"/><br />
+        <sub><b>조서영</b></sub>
+      </a><br />
+      <sub>💻 Developer</sub>
+    </td>
+  </tr>
+</table>
 
-**Repository**
+---
 
-- 데이터 접근만 담당
-- JPA 메서드 네이밍 규칙 준수
-- 복잡한 쿼리는 `@Query` 또는 QueryDSL 사용
+## 🛠️ 기술 스택
 
-## 4. DTO 작성 규칙
+### Backend
 
-```java
-// Request DTO
-@Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserRequestDto {
+- **Java 17**
+- **Spring Boot 3.3.5**
+- **Spring Data JPA**
+- **Spring AI** (OpenAI Integration)
+- **MySQL**
 
-    @NotBlank(message = "이름은 필수입니다")
-    private String name;
+### Documentation
 
-    @Email(message = "올바른 이메일 형식이 아닙니다")
-    private String email;
+- **Swagger/OpenAPI 3.0** - API 문서 자동화
 
-    // DTO → Entity 변환
-    public User toEntity() {
-        return User.builder()
-                .name(this.name)
-                .email(this.email)
-                .build();
-    }
-}
+### Utilities
 
-// Response DTO
-@Getter
-@Builder
-public class UserResponseDto {
-    private Long id;
-    private String name;
-    private String email;
-    private LocalDateTime createdAt;
+- **Lombok** - 보일러플레이트 코드 감소
 
-    // Entity → DTO 변환
-    public static UserResponseDto from(User user) {
-        return UserResponseDto.builder()
-                .id(user.getId())
-                .name(user.getName())
-                .email(user.getEmail())
-                .createdAt(user.getCreatedAt())
-                .build();
-    }
-}
+---
+
+## 🚀 시작하기
+
+### 사전 요구사항
+
+- Java 17 이상
+- MySQL 8.0 이상
+- OpenAI API Key
+
+### 실행 방법
+
+```bash
+# 프로젝트 빌드
+./gradlew build
+
+# 애플리케이션 실행
+./gradlew bootRun
 ```
 
-## 5. Entity 작성 규칙
+애플리케이션이 실행되면 `http://localhost:8080`에서 접근 가능합니다.
 
-```java
-@Entity
-@Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User extends BaseTimeEntity {
-    
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    
-    @Column(nullable = false)
-    private String name;
-    
-    @Column(nullable = false, unique = true)
-    private String email;
-    
-    @Builder
-    private User(String name, String email) {
-        this.name = name;
-        this.email = email;
-    }
-    
-    // 비즈니스 로직은 Entity 내부에 작성
-    public void updateEmail(String newEmail) {
-        this.email = newEmail;
-    }
-}
-```
+### API 문서
 
-**Entity 규칙**
+Swagger UI: `http://localhost:8080/swagger-ui.html`
 
-- `@Setter` 사용 금지 (불변성 보장)
-- `@Getter` 는 쓸 때 한번 고민해보기!
-- 생성자는 `@Builder` 사용
-- 비즈니스 로직은 Entity 내부에 작성
+---
 
-## 6. Configuration 작성
-
-```java
-@Configuration
-public class SecurityConfig {
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        // 설정 내용
-        return http.build();
-    }
-}
-```
-
-- `@Configuration` 클래스는 `global/config` 패키지에 위치
-- 각 설정은 목적별로 분리 (Security, Database, Redis 등)
-
-## 7. Git Commit 컨벤션
-
-| 커밋 유형      | 의미 |
-|------------| --- |
-| `feat`     | 새로운 기능 추가 |
-| `fix`      | 버그 수정 |
-| `docs`     | 문서 수정 |
-| `style`    | 코드 formatting, 세미콜론 누락, 코드 자체의 변경이 없는 경우 |
-| `refactor` | 코드 리팩토링 |
-| `test`     | 테스트 코드, 리팩토링 테스트 코드 추가 |
-| `chore`    | 패키지 매니저 수정, 그 외 기타 수정 ex) .gitignore |
-| `rename`   | 파일 또는 폴더 명을 수정하거나 옮기는 작업만인 경우 |
-| `remove`   | 파일을 삭제하는 작업만 수행한 경우 |
-| `!HOTFIX`  | 급하게 치명적인 버그를 고쳐야 하는 경우 |
+## 📁 프로젝트 구조
 
 ```
-feat: 새로운 기능 추가
-fix: 버그 수정
-refactor: 코드 리팩토링
-style: 코드 포맷팅, 세미콜론 누락 등
-docs: 문서 수정
-test: 테스트 코드 추가/수정
-chore: 빌드 업무, 패키지 매니저 수정
+src/main/java/sopt/server/web3/
+├── domain/
+│   ├── diary/          # 일기 도메인
+│   │   ├── controller/
+│   │   ├── service/
+│   │   ├── repository/
+│   │   ├── entity/
+│   │   └── dto/
+│   └── user/           # 사용자 도메인
+│       ├── entity/
+│       └── repository/
+├── global/             # 전역 설정
+│   ├── config/
+│   ├── exception/
+│   └── response/
+└── Web3Application.java
 ```
 
-**예시**: [Feat] User: 로그인 기능 추가
+---
 
-## 8. Git Branch 컨벤션
+## 🌟 API 주요 엔드포인트
 
-```smalltalk
-<이슈번호>-<커밋 유형>/내용
+### 📝 다이어리 API
 
-Git Flow
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/diaries` | 다이어리 목록 조회 (커서 페이징) |
+| `GET` | `/api/diaries?leafType=FAITH` | 테마별 다이어리 목록 조회 |
+| `GET` | `/api/diaries/{diaryId}` | 다이어리 상세 조회 |
 
-main(배포 버전 코드)
-dev(개발 단계 코드)
-
-// 영어로 쓰기
-15-feature/implement-user-login
-```
-
-## 9. Issue 잘 만들기!
-
-```java
-템플릿에 맞춰
-
-버그 찾으면 버그 이슈화
-기능 추가 티켓 다 이슈화
-```
-
-## 10. 환경 설정 관리
-
-```yaml
-# application.yml
-spring:
-  profiles:
-    active: ${PROFILE:dev}
-
-# application-dev.yml (개발)
-# application-prod.yml (운영)
-```
-
-- 민감 정보는 환경 변수로 관리
-- `.env` 파일은 `.gitignore`에 추가
-
-## 11. 공통 응답 (API Response) 컨벤션
-
-**모든 API는 `CommonApiResponse`로 통일된 응답 형식을 사용합니다.**
-
-### 응답 구조
+### 응답 예시
 
 ```json
 {
-  "code": "S200",
+  "status": 200,
   "message": "성공",
-  "data": { ... }
-}
-```
-
-### Success Code 추가 방법
-
-**SuccessCode는 global에서 통합 관리합니다.**
-
-1. **공통 성공 코드** (`SuccessCode.java`)
-
-```java
-@Getter
-public enum SuccessCode implements SuccessType {
-	// 공통 응답 코드
-    SUCCESS("S200", "성공"),
-
-	// 리뷰 응답 코드
-    REVIEW_CREATED("R201", "리뷰 작성 성공");
-	
-    private final String code;
-    private final String message;
-
-    SuccessCode(String code, String message) {
-        this.code = code;
-        this.message = message;
-    }
-}
-```
-
-2. **Controller에서 사용**
-
-```java
-@GetMapping("/{id}")
-public CommonApiResponse<UserResponseDto> getUser(@PathVariable Long id) {
-    UserResponseDto user = userService.getUser(id);
-    return CommonApiResponse.success(SuccessCode.MEMBER_RETRIEVED, user);
-}
-```
-
-**코드 네이밍 규칙**
-- `S###`: 공통 성공 코드
-- `R###`: 리뷰 관련
-- `C###`: 카테고리 관련
-- `B###`: Book 관련
-- 각 도메인별로 001부터 099까지 할당
-
-## 12. 예외 처리 컨벤션
-
-**global ErrorCode와 BaseException을 사용하여 관리합니다.**
-
-### 예외 처리 구조
-
-```
-GlobalExceptionHandler
-    ├── BaseException (커스텀 비즈니스 예외)
-    ├── MethodArgumentNotValidException (@Valid 검증 실패)
-    ├── IllegalArgumentException (도메인 검증 실패)
-    ├── HttpMessageNotReadableException (JSON 파싱 실패)
-    └── Exception (그 외 모든 예외)
-```
-
-### Error Code 추가 방법
-
-1. **에러 코드** (`ErrorCode.java`)
-
-```java
-@Getter
-public enum ErrorCode implements ErrorType {
-    // 공통 에러 (C001~C099)
-    INVALID_INPUT("E001", "입력값이 올바르지 않습니다", 400),
-    INVALID_FORMAT("E002", "데이터 형식이 올바르지 않습니다", 400),
-    INTERNAL_SERVER_ERROR("E999", "서버 내부 오류가 발생했습니다", 500),
-
-	// 리뷰 에러
-    REVIEW_NOT_FOUND("R001", "리뷰를 찾을 수 없습니다", 404);
-	
-    private final String code;
-    private final String message;
-    private final int status;
-
-    ErrorCode(String code, String message, int status) {
-        this.code = code;
-        this.message = message;
-        this.status = status;
-    }
-}
-```
-
-### Service에서 예외 발생
-
-```java
-@Service
-@RequiredArgsConstructor
-@Transactional(readOnly = true)
-public class UserService {
-
-    private final UserRepository userRepository;
-
-    public UserResponseDto getUser(Long id) {
-        // 도메인별 Exception과 ErrorCode 사용
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new BaseException(ErrorCode.USER_NOT_FOUND));
-
-        return UserResponseDto.from(user);
-    }
-
-    public void validateEmail(String email) {
-        if (userRepository.existsByEmail(email)) {
-            // 커스텀 메시지와 함께 예외 발생
-            throw new BaseException(ErrorCode.DUPLICATE_EMAIL, email);
-        }
-    }
-}
-```
-
-**코드 네이밍 규칙**
-- `E###`: 공통 에러 코드
-- `R###`: 리뷰 관련
-- `C###`: 카테고리 관련
-- `B###`: Book 관련
-- 각 도메인별로 001부터 099까지 할당
-
-### 에러 응답 형식
-
-```json
-{
-  "code": "M001",
-  "message": "사용자를 찾을 수 없습니다",
-  "data": null
-}
-```
-
-**Validation 실패 시**
-```json
-{
-  "code": "E001",
-  "message": "입력값이 올바르지 않습니다",
   "data": {
-    "email": "올바른 이메일 형식이 아닙니다",
-    "name": "이름은 필수입니다"
+    "diaries": [...],
+    "nextCursor": 42,
+    "hasNext": true,
+    "totalCount": 100
   }
 }
 ```
 
-## 13. Swagger 컨벤션
+---
 
-**Swagger를 통해 자동으로 API 문서가 생성됩니다.**
+## 🎨 감정 키워드 분류
 
-### Swagger 접속
+| 키워드 | 영문 | 설명 |
+|--------|------|------|
+| 🛡️ 용기 | FAITH | 믿음과 용기가 필요했던 순간 |
+| ⭐ 소망 | HOPE | 희망과 기대를 품었던 순간 |
+| ❤️ 사랑 | LOVE | 사랑과 애정을 느낀 순간 |
 
-- 개발 환경: `http://localhost:8080/swagger-ui.html`
-- 배포 환경: `${SWAGGER_BASE_URL}/swagger-ui.html`
+---
 
-### Controller에 Swagger 어노테이션 추가
+## 📄 라이선스
 
-```java
-@RestController
-@RequestMapping("/api/users")
-@RequiredArgsConstructor
-@Tag(name = "User", description = "회원 관련 API")
-public class UserController {
+This project is licensed under the MIT License.
 
-    private final UserService userService;
+---
 
-    @Operation(summary = "회원 정보 조회", description = "ID로 회원 정보를 조회합니다")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "조회 성공"),
-        @ApiResponse(responseCode = "404", description = "회원을 찾을 수 없음",
-                content = @Content(schema = @Schema(implementation = CommonApiResponse.class)))
-    })
-    @GetMapping("/{id}")
-    public CommonApiResponse<UserResponseDto> getUser(
-            @Parameter(description = "회원 ID", required = true) @PathVariable Long id) {
-        UserResponseDto user = userService.getUser(id);
-        return CommonApiResponse.success(SuccessCode.SUCCESS, user);
-    }
-
-    @Operation(summary = "회원 가입", description = "새로운 회원을 생성합니다")
-    @PostMapping
-    public CommonApiResponse<Void> createUser(
-            @Valid @RequestBody UserRequestDto request) {
-        userService.createUser(request);
-        return CommonApiResponse.success(SuccessCode.SUCCESS);
-    }
-}
-```
-
-### DTO에 Swagger 어노테이션 추가
-
-```java
-@Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Schema(description = "회원 생성 요청")
-public class UserRequestDto {
-
-    @Schema(description = "회원 이름", example = "홍길동", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "이름은 필수입니다")
-    private String name;
-
-    @Schema(description = "이메일 주소", example = "hong@example.com", requiredMode = Schema.RequiredMode.REQUIRED)
-    @Email(message = "올바른 이메일 형식이 아닙니다")
-    private String email;
-}
-
-@Getter
-@Builder
-@Schema(description = "회원 정보 응답")
-public class UserResponseDto {
-
-    @Schema(description = "회원 ID", example = "1")
-    private Long id;
-
-    @Schema(description = "회원 이름", example = "홍길동")
-    private String name;
-
-    @Schema(description = "이메일 주소", example = "hong@example.com")
-    private String email;
-
-    @Schema(description = "생성일시", example = "2024-01-15T10:30:00")
-    private LocalDateTime createdAt;
-}
-```
-
-### Swagger 어노테이션 정리
-
-| 어노테이션 | 사용 위치 | 설명 |
-|-----------|----------|------|
-| `@Tag` | Controller 클래스 | API 그룹 정의 |
-| `@Operation` | Controller 메서드 | API 설명 |
-| `@ApiResponses` | Controller 메서드 | 응답 코드별 설명 |
-| `@Parameter` | 메서드 파라미터 | 파라미터 설명 |
-| `@Schema` | DTO 클래스/필드 | 스키마 설명 |
-# 37-SOPKATHON-SERVER-WEB3
