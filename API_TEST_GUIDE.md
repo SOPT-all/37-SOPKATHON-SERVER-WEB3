@@ -4,6 +4,10 @@
 - 애플리케이션 실행: `./gradlew bootRun`
 - Base URL: `http://localhost:8080`
 - DB 초기 데이터 로드 완료 (data.sql 실행됨)
+  - User 1명 (userId=1)
+  - Diary 3개 (FAITH, LOVE, HOPE 각 1개)
+  - Saga 3개
+  - UserSagaCount 1개 (faithCount=1, loveCount=1, hopeCount=1)
 
 ---
 
@@ -99,6 +103,9 @@ Content-Type: application/json
 }
 ```
 
+**DB 확인사항**
+- `user_saga_counts` 테이블에서 `faith_count`가 1 → 2로 증가
+
 ---
 
 ### 4️⃣ 새로운 일기 작성 및 설화 생성 (LOVE)
@@ -129,6 +136,9 @@ Content-Type: application/json
 }
 ```
 
+**DB 확인사항**
+- `user_saga_counts` 테이블에서 `love_count`가 1 → 2로 증가
+
 ---
 
 ### 5️⃣ 새로운 일기 작성 및 설화 생성 (HOPE)
@@ -158,6 +168,9 @@ Content-Type: application/json
   }
 }
 ```
+
+**DB 확인사항**
+- `user_saga_counts` 테이블에서 `hope_count`가 1 → 2로 증가
 
 ---
 
@@ -217,8 +230,113 @@ GET http://localhost:8080/api/diaries
       "leafType": "FAITH",
       "createdAt": "2024-01-18T16:45:00"
     },
-    ...
+    {
+      "diaryId": 3,
+      "title": "희망의 빛",
+      "leafType": "HOPE",
+      "createdAt": "2024-01-17T09:15:00"
+    },
+    {
+      "diaryId": 2,
+      "title": "사랑의 순간",
+      "leafType": "LOVE",
+      "createdAt": "2024-01-16T14:20:00"
+    },
+    {
+      "diaryId": 1,
+      "title": "믿음의 하루",
+      "leafType": "FAITH",
+      "createdAt": "2024-01-15T10:30:00"
+    }
   ]
+}
+```
+
+---
+
+### 8️⃣ UserSagaCount 확인 (DB 직접 조회)
+
+**SQL Query**
+```sql
+SELECT user_id, faith_count, love_count, hope_count
+FROM user_saga_counts
+WHERE user_id = 1;
+```
+
+**Expected Result (3개 일기 생성 후)**
+```
+user_id | faith_count | love_count | hope_count
+--------|-------------|------------|------------
+   1    |      2      |     2      |     2
+```
+
+---
+
+## 에러 케이스 테스트
+
+### ❌ 잘못된 테마
+
+**Request**
+```
+POST http://localhost:8080/api/diary
+Content-Type: application/json
+
+{
+  "title": "테스트",
+  "createdAt": "2024-01-20T20:30:00",
+  "theme": "INVALID",
+  "content": "테스트 내용"
+}
+```
+
+**Expected Response (400 Bad Request)**
+```json
+{
+  "code": "C002",
+  "message": "데이터 형식이 올바르지 않습니다",
+  "data": null
+}
+```
+
+---
+
+### ❌ 존재하지 않는 일기 조회
+
+**Request**
+```
+GET http://localhost:8080/api/diaries/999
+```
+
+**Expected Response (404 Not Found)**
+```json
+{
+  "code": "D001",
+  "message": "다이어리를 찾을 수 없습니다",
+  "data": null
+}
+```
+
+---
+
+### ❌ 필수 필드 누락
+
+**Request**
+```
+POST http://localhost:8080/api/diary
+Content-Type: application/json
+
+{
+  "title": "테스트",
+  "theme": "FAITH"
+}
+```
+
+**Expected Response (400 Bad Request)**
+```json
+{
+  "code": "C002",
+  "message": "데이터 형식이 올바르지 않습니다",
+  "data": null
 }
 ```
 
@@ -231,7 +349,7 @@ GET http://localhost:8080/api/diaries
 ```json
 {
   "info": {
-    "name": "Web3 Diary API",
+    "name": "Web3 Diary API (with UserSagaCount)",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -331,6 +449,71 @@ GET http://localhost:8080/api/diaries
           "path": ["api", "diary"]
         }
       }
+    },
+    {
+      "name": "6. Get Created Diary Detail",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/diaries/4",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "diaries", "4"]
+        }
+      }
+    },
+    {
+      "name": "7. Get All Diaries (After Creation)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/diaries",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "diaries"]
+        }
+      }
+    },
+    {
+      "name": "Error: Invalid Theme",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"테스트\",\n  \"createdAt\": \"2024-01-20T20:30:00\",\n  \"theme\": \"INVALID\",\n  \"content\": \"테스트 내용\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/diary",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "diary"]
+        }
+      }
+    },
+    {
+      "name": "Error: Diary Not Found",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/diaries/999",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "diaries", "999"]
+        }
+      }
     }
   ]
 }
@@ -338,58 +521,37 @@ GET http://localhost:8080/api/diaries
 
 ---
 
-## 에러 케이스 테스트
+## 테스트 순서 권장
 
-### ❌ 잘못된 테마
-
-**Request**
-```
-POST http://localhost:8080/api/diary
-Content-Type: application/json
-
-{
-  "title": "테스트",
-  "createdAt": "2024-01-20T20:30:00",
-  "theme": "INVALID",
-  "content": "테스트 내용"
-}
-```
-
-**Expected Response (400 Bad Request)**
-```json
-{
-  "code": "C002",
-  "message": "데이터 형식이 올바르지 않습니다",
-  "data": null
-}
-```
-
-### ❌ 존재하지 않는 일기 조회
-
-**Request**
-```
-GET http://localhost:8080/api/diaries/999
-```
-
-**Expected Response (404 Not Found)**
-```json
-{
-  "code": "D001",
-  "message": "다이어리를 찾을 수 없습니다",
-  "data": null
-}
-```
+1. **GET /api/diaries** - 초기 데이터 확인 (3개)
+2. **GET /api/diaries/1** - 설화가 포함된 일기 상세 확인
+3. **DB 확인** - UserSagaCount 초기값 확인 (faith:1, love:1, hope:1)
+4. **POST /api/diary** (FAITH) - 새 일기 생성 및 설화 자동 생성
+5. **DB 확인** - UserSagaCount의 faithCount 증가 확인 (1→2)
+6. **POST /api/diary** (LOVE) - 사랑 테마 일기 생성
+7. **DB 확인** - loveCount 증가 확인 (1→2)
+8. **POST /api/diary** (HOPE) - 희망 테마 일기 생성
+9. **DB 확인** - hopeCount 증가 확인 (1→2)
+10. **GET /api/diaries** - 전체 목록에 6개 일기가 있는지 확인
+11. **에러 케이스** - 잘못된 테마, 존재하지 않는 일기 조회 등
 
 ---
 
-## 테스트 순서 권장
+## UserSagaCount 동작 확인 방법
 
-1. **GET /api/diaries** - 초기 데이터 확인
-2. **GET /api/diaries/1** - 설화가 포함된 일기 상세 확인
-3. **POST /api/diary** (FAITH) - 새 일기 생성 및 설화 자동 생성
-4. **GET /api/diaries/{새로생성된ID}** - 방금 생성한 일기 확인
-5. **POST /api/diary** (LOVE, HOPE) - 다른 주제로도 테스트
-6. **GET /api/diaries** - 전체 목록에 새 일기들이 포함되었는지 확인
+### 방법 1: SQL 직접 조회
+```sql
+SELECT * FROM user_saga_counts WHERE user_id = 1;
+```
+
+### 방법 2: 테스트 시나리오
+1. 초기 상태: faith=1, love=1, hope=1
+2. FAITH 일기 1개 생성 → faith=2
+3. LOVE 일기 1개 생성 → love=2
+4. HOPE 일기 1개 생성 → hope=2
+5. FAITH 일기 1개 더 생성 → faith=3
+
+각 일기 생성 후 DB를 확인하여 해당 카운트가 정확히 증가했는지 검증합니다.
 
 ---
 
@@ -399,3 +561,19 @@ GET http://localhost:8080/api/diaries/999
 ```
 http://localhost:8080/swagger-ui.html
 ```
+
+---
+
+## 주요 기능 정리
+
+### 자동으로 처리되는 사항
+1. **사용자 ID 고정**: 모든 요청은 userId=1로 자동 처리
+2. **설화 자동 생성**: OpenAI API를 통해 테마별로 다른 설화 생성
+3. **카운트 자동 증가**: 일기 생성 시 해당 테마의 UserSagaCount 자동 증가
+4. **트랜잭션 관리**: Diary, Saga, UserSagaCount가 하나의 트랜잭션으로 처리
+5. **생성일시 관리**: BaseTimeEntity를 통한 자동 생성/수정 시간 기록
+
+### 테마별 프롬프트 특징
+- **FAITH (믿음)**: 신뢰와 믿음의 가치를 담은 설화
+- **LOVE (사랑)**: 사랑과 관계의 소중함을 담은 설화
+- **HOPE (희망)**: 희망과 긍정의 메시지를 담은 설화
