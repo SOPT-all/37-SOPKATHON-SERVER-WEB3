@@ -11,7 +11,9 @@ public enum ErrorCode implements ErrorType {
 
 	INTERNAL_SERVER_ERROR("C999", "서버 내부 오류가 발생했습니다", 500),
 
-	DIARY_NOT_FOUND("D001", "다이어리를 찾을 수 없습니다", 404);
+	DIARY_NOT_FOUND("D001", "다이어리를 찾을 수 없습니다", 404),
+
+	USER_SAGA_COUNT_NOT_FOUND("U001", "유저의 설화 카운트를 찾을 수 없습니다", 404);
 
 	private final String code;
 	private final String message;

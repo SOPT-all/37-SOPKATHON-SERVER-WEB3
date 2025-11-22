@@ -45,4 +45,16 @@ public class UserSagaCount {
         this.hopeCount = hopeCount != null ? hopeCount : 0;
         this.loveCount = loveCount != null ? loveCount : 0;
     }
+
+    public void incrementFaithCount() {
+        this.faithCount++;
+    }
+
+    public void incrementHopeCount() {
+        this.hopeCount++;
+    }
+
+    public void incrementLoveCount() {
+        this.loveCount++;
+    }
 }
