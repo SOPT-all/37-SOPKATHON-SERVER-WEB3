@@ -9,6 +9,12 @@ import lombok.Getter;
 @Schema(description = "설화 변환 응답")
 public class DiaryToStoryResponseDto {
 
+	@Schema(description = "저장된 일기 ID")
+	private Long diaryId;
+
+	@Schema(description = "저장된 설화 ID")
+	private Long sagaId;
+
 	@Schema(description = "설화로 변환된 내용")
 	private String story;
 }

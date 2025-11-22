@@ -22,11 +22,11 @@ public class OpenAIController {
 
 	private final DiaryToStoryService diaryToStoryService;
 
-	@Operation(summary = "일기를 설화로 변환", description = "주제(Faith, Love, Hope)에 맞춰 일기 내용을 설화로 변환합니다.")
+	@Operation(summary = "일기를 설화로 변환", description = "주제(Faith, Love, Hope)에 맞춰 일기 내용을 설화로 변환하고 저장합니다.")
 	@PostMapping("/diary")
 	public CommonApiResponse<DiaryToStoryResponseDto> convertDiaryToStory(@RequestBody DiaryToStoryRequestDto request) {
 
-		DiaryToStoryResponseDto response = diaryToStoryService.convertDiaryToStory(request.getTheme(), request.getContent());
+		DiaryToStoryResponseDto response = diaryToStoryService.convertDiaryToStory(request);
 
 		return CommonApiResponse.success(SuccessCode.OPENAI_DIARY_TO_STORY_SUCCESS, response);
 	}
