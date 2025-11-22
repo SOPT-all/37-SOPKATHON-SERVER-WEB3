@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import sopt.server.web3.domain.openai.domain.Theme;
+import sopt.server.web3.domain.diary.entity.LeafType;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -20,7 +20,7 @@ public class DiaryToStoryRequestDto {
 	private LocalDateTime createdAt;
 
 	@Schema(description = "주제 (FAITH, LOVE, HOPE)", example = "FAITH")
-	private Theme theme;
+	private LeafType theme;
 
 	@Schema(description = "일기 내용", example = "오늘은 힘든 일이 있었지만, 포기하지 않고 끝까지 해냈다.")
 	private String content;
