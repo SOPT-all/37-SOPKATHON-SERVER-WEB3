@@ -6,6 +6,8 @@ spring:
       - optional:file:.env[.properties]
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
+    include:
+      - ai
 
 server:
   shutdown: graceful

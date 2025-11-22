@@ -16,6 +16,8 @@ java {
 
 repositories {
 	mavenCentral()
+	// Spring AI Milestone Repository
+	maven { url = 'https://repo.spring.io/milestone' }
 }
 
 dependencies {
@@ -34,6 +36,12 @@ dependencies {
 	// Utility
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	// Spring AI OpenAI Starter (공식 Spring AI OpenAI 연동)
+	implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter'
+
+	// === Spring AI BOM (Bill of Materials) ===
+	implementation platform('org.springframework.ai:spring-ai-bom:1.0.0-M3')
 
 	// Test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
