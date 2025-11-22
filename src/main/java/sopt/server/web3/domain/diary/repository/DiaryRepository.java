@@ -39,4 +39,16 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
    */
   @Query("SELECT d FROM Diary d WHERE d.leafType = :leafType AND d.diaryId < :cursor ORDER BY d.diaryId DESC")
   List<Diary> findByLeafTypeWithCursor(@Param("leafType") LeafType leafType, @Param("cursor") Long cursor, Pageable pageable);
+
+  /**
+   * 전체 다이어리 개수 조회
+   */
+  @Query("SELECT COUNT(d) FROM Diary d")
+  long countAllDiaries();
+
+  /**
+   * 테마별 다이어리 개수 조회
+   */
+  @Query("SELECT COUNT(d) FROM Diary d WHERE d.leafType = :leafType")
+  long countByLeafType(@Param("leafType") LeafType leafType);
 }

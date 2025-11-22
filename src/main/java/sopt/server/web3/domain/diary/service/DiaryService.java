@@ -66,7 +66,10 @@ public class DiaryService {
                 ? content.get(content.size() - 1).getDiaryId()
                 : null;
 
-        return DiaryPageResponseDto.of(diaryDtos, nextCursor, hasNext);
+        // 전체 다이어리 개수 조회
+        long totalCount = diaryRepository.countAllDiaries();
+
+        return DiaryPageResponseDto.of(diaryDtos, nextCursor, hasNext, totalCount);
     }
 
     /**
@@ -99,7 +102,10 @@ public class DiaryService {
                 ? content.get(content.size() - 1).getDiaryId()
                 : null;
 
-        return DiaryPageResponseDto.of(diaryDtos, nextCursor, hasNext);
+        // 테마별 다이어리 개수 조회
+        long totalCount = diaryRepository.countByLeafType(leafType);
+
+        return DiaryPageResponseDto.of(diaryDtos, nextCursor, hasNext, totalCount);
     }
 
     public DiaryDetailResponseDto getDiary(Long diaryId) {
