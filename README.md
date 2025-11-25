@@ -187,6 +187,12 @@ src/main/java/sopt/server/web3/
 
 ---
 
+## 🏆 수상
+
+![Image](https://github.com/user-attachments/assets/7908edb2-7141-4c33-9eb9-431c1be48083)
+
+---
+
 ## 📄 라이선스
 
 This project is licensed under the MIT License.
